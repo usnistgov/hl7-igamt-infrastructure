@@ -37,7 +37,7 @@ services:
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-auth-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-auth.env
-      - ./${COMPOSE_PROFILES}/env/.env
+      - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
       - hl7-auth-db:hl7-auth-db
     volumes:
@@ -63,7 +63,7 @@ services:
       - ./${COMPOSE_PROFILES}/data/hl7-igamt-db/configdb:/data/configdb
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
-      - ./${COMPOSE_PROFILES}/env/.env
+      - ./${COMPOSE_PROFILES}/env/deployment.env
     restart: always
 
   hl7-igamt:
@@ -82,7 +82,7 @@ services:
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-igamt.env
-      - ./${COMPOSE_PROFILES}/env/.env
+      - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
       - hl7-igamt-db:hl7-igamt-db
       - hl7-auth:hl7-auth
@@ -100,7 +100,7 @@ services:
     container_name: hl7-reverse-proxy-${COMPOSE_PROFILES}
     profiles: ["dev", "test", "prod"]
     env_file:
-      - ./${COMPOSE_PROFILES}/env/.env
+      - ./${COMPOSE_PROFILES}/env/deployment.env
     volumes:
       - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/logs/:/var/log/nginx/
       - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/html:/usr/share/nginx/html:ro
