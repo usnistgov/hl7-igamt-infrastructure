@@ -1,1 +1,1 @@
-COMPOSE_PROFILES=test docker compose --env-file ./test/env/.env up -d
+COMPOSE_PROFILES=test docker compose --env-file ./test/env/deployment.env up -d
