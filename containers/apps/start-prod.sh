@@ -1,0 +1,1 @@
+COMPOSE_PROFILES=prod docker compose --env-file ./prod/env/.env up -d

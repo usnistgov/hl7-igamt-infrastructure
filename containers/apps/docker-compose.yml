@@ -1,110 +1,121 @@
 
-version: '3.3'
 services:
 
   hl7-auth-db:
-      image: mongo:4.4.29-focal
-      networks:
-        - hl7
-      container_name: hl7-auth-db
-      expose:
-            - "27017"
-      healthcheck:
-          test: ["CMD-SHELL", "mongo localhost:27017 --eval 'db.serverStatus()' "]
-          interval: 30s
-          timeout: 30s
-          retries: 3
-      volumes:
-          - ../../data/hl7-auth-db/logs/:/var/log/mongodb/
-          - ../../data/hl7-auth-db/db:/data/db
-          - ../../data/hl7-auth-db/configdb:/data/configdb
-      env_file:
-          - ./config/hl7-auth-db.env
-      restart: always
+    image: mongo:4.4.29-focal
+    networks:
+      - hl7-${COMPOSE_PROFILES}
+    container_name: hl7-auth-db-${COMPOSE_PROFILES}
+    profiles: ["dev", "test", "prod"]
+    expose:
+      - "27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongo localhost:27017 --eval 'db.serverStatus()' "]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - ./${COMPOSE_PROFILES}/data/hl7-auth-db/logs/:/var/log/mongodb/
+      - ./${COMPOSE_PROFILES}/data/hl7-auth-db/db:/data/db
+      - ./${COMPOSE_PROFILES}/data/hl7-auth-db/configdb:/data/configdb
+    env_file:
+      - ./${COMPOSE_PROFILES}/env/hl7-auth-db.env
+    restart: always
 
   hl7-auth:
-      image: nist775hit/hl7-auth-2
-      networks:
-        - hl7
-      container_name: hl7-auth
-      expose:
-          - "8090"
-      ports:
-          - "8090:8090"
-      depends_on:
-        - hl7-auth-db
-      env_file:
-          - ./hl7-auth-db/config/db.env
-          - ./config/hl7-auth.env
-      links:
-          - hl7-auth-db:hl7-auth-db
-      volumes:
-          - ../../data/hl7-auth/logs/:/var/log/hl7-auth/
-          - ./config/keys:/usr/local/hl7-auth/keys
+    image: nist775hit/hl7-auth-2
+    networks:
+      - hl7-${COMPOSE_PROFILES}
+    container_name: hl7-auth-${COMPOSE_PROFILES}
+    profiles: ["dev", "test", "prod"]
+    expose:
+      - "8090"
+    ports:
+      - "${HL7_AUTH_PORT:-1000}:8090"
+    depends_on:
+      - hl7-auth-db
+    env_file:
+      - ./${COMPOSE_PROFILES}/env/hl7-auth-db.env
+      - ./${COMPOSE_PROFILES}/env/hl7-auth.env
+      - ./${COMPOSE_PROFILES}/env/.env
+    links:
+      - hl7-auth-db:hl7-auth-db
+    volumes:
+      - ./${COMPOSE_PROFILES}/data/hl7-auth/logs/:/var/log/hl7-auth/
+      - ./${COMPOSE_PROFILES}/env/keys:/usr/local/hl7-auth/keys
 
   hl7-igamt-db:
-      image: mongo:4.4.29-focal
-      networks:
-        - hl7
-      container_name: hl7-igamt-db
-      expose:
-            - "27017"
-      healthcheck:
-          test: ["CMD-SHELL", "mongo localhost:27017 --eval 'db.serverStatus()' "]
-          interval: 30s
-          timeout: 30s
-          retries: 3
-      volumes:
-          - ../../data/hl7-igamt-db/logs/:/var/log/mongodb/
-          - ../../data/hl7-igamt-db/db:/data/db
-          - ../../data/hl7-igamt-db/configdb:/data/configdb
-      env_file:
-          - ./config/hl7-igamt-db.env
-      restart: always
+    image: mongo:4.4.29-focal
+    networks:
+      - hl7-${COMPOSE_PROFILES}
+    container_name: hl7-igamt-db-${COMPOSE_PROFILES}
+    profiles: ["dev", "test", "prod"]
+    expose:
+      - "27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongo localhost:27017 --eval 'db.serverStatus()' "]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - ./${COMPOSE_PROFILES}/data/hl7-igamt-db/logs/:/var/log/mongodb/
+      - ./${COMPOSE_PROFILES}/data/hl7-igamt-db/db:/data/db
+      - ./${COMPOSE_PROFILES}/data/hl7-igamt-db/configdb:/data/configdb
+    env_file:
+      - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
+      - ./${COMPOSE_PROFILES}/env/.env
+    restart: always
 
   hl7-igamt:
-      image: nist775hit/hl7-igamt-2
-      networks:
-        - hl7
-      expose:
-          - "9000"
-      ports:
-          - "9000:9000"
-      container_name: hl7-igamt
-      depends_on:
-        - hl7-igamt-db
-        - hl7-auth
-      env_file:
-        - ./hl7-igamt-db/config/db.env
-        - ./config/hl7-igamt.env
-      links:
-          - hl7-igamt-db:hl7-igamt-db
-          - hl7-auth:hl7-auth
-      volumes:
-          - ../../data/hl7-igamt/logs/:/var/log/hl7-igamt/
-          - ./config/keys:/usr/local/hl7-igamt/keys
-
-      extra_hosts:
-          - "hit-dev.nist.gov:129.6.24.81"
+    image: nist775hit/hl7-igamt-2
+    networks:
+      - hl7-${COMPOSE_PROFILES}
+    container_name: hl7-igamt-${COMPOSE_PROFILES}
+    profiles: ["dev", "test", "prod"]
+    expose:
+      - "9000"
+    ports:
+      - "${HL7_IGAMT_PORT-1001}:9000"
+    depends_on:
+      - hl7-igamt-db
+      - hl7-auth
+    env_file:
+      - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
+      - ./${COMPOSE_PROFILES}/env/hl7-igamt.env
+      - ./${COMPOSE_PROFILES}/env/.env
+    links:
+      - hl7-igamt-db:hl7-igamt-db
+      - hl7-auth:hl7-auth
+    volumes:
+      - ./${COMPOSE_PROFILES}/data/hl7-igamt/logs/:/var/log/hl7-igamt/
+      - ./${COMPOSE_PROFILES}/env/keys:/usr/local/hl7-igamt/keys
+    extra_hosts:
+      - "hit-dev.nist.gov:129.6.24.81"
 
   hl7-reverse-proxy:
-      build: ./tools-reverse-proxy
-      networks:
-        - hl7
-      image: hl7-reverse-proxy
-      container_name: hl7-reverse-proxy
-      volumes:
-          - ../../data/hl7-reverse-proxy/logs/:/var/log/nginx/
-          - ../../data/hl7-reverse-proxy/html:/usr/share/nginx/html:ro
-      ports:
-          #- "80:80"
-          - "8102:8102"
-      depends_on:
-          - hl7-auth
-          - hl7-igamt
-      links:
-          - hl7-auth:hl7-auth
-          - hl7-igamt:hl7-igamt
-
+    build: ./tools-reverse-proxy
+    networks:
+      - hl7-${COMPOSE_PROFILES}
+    image: hl7-reverse-proxy
+    container_name: hl7-reverse-proxy-${COMPOSE_PROFILES}
+    profiles: ["dev", "test", "prod"]
+    env_file:
+      - ./${COMPOSE_PROFILES}/env/.env
+    volumes:
+      - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/logs/:/var/log/nginx/
+      - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/html:/usr/share/nginx/html:ro
+    ports:
+      - "${HL7_REVERSE_PROXY_PORT-1002}:8102"
+    depends_on:
+      - hl7-auth
+      - hl7-igamt
+    links:
+      - hl7-auth:hl7-auth
+      - hl7-igamt:hl7-igamt
 networks:
-  hl7:
+  hl7-dev:
+    name: hl7-dev
+  hl7-test:
+    name: hl7-test
+  hl7-prod:
+    name: hl7-prod

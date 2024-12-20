@@ -1,0 +1,1 @@
+COMPOSE_PROFILES=dev docker compose --env-file ./dev/env/.env up -d
