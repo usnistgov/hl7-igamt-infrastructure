@@ -33,16 +33,16 @@ services:
     ports:
       - "${HL7_AUTH_PORT:-1000}:8090"
     depends_on:
-      - hl7-auth-db
+      - hl7-auth-db-${COMPOSE_PROFILES}
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-auth-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-auth.env
       - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
-      - hl7-auth-db:hl7-auth-db
+      - hl7-auth-db-${COMPOSE_PROFILES}:hl7-auth-db-${COMPOSE_PROFILES}
     volumes:
       - ./${COMPOSE_PROFILES}/data/hl7-auth/logs/:/var/log/hl7-auth/
-      - ./${COMPOSE_PROFILES}/env/keys:/usr/local/hl7-auth/keys
+      - ./${COMPOSE_PROFILES}/keys:/usr/local/hl7-auth/keys
 
   hl7-igamt-db:
     image: mongo:4.4.29-focal
@@ -77,18 +77,18 @@ services:
     ports:
       - "${HL7_IGAMT_PORT-1001}:9000"
     depends_on:
-      - hl7-igamt-db
-      - hl7-auth
+      - hl7-igamt-db-${COMPOSE_PROFILES}
+      - hl7-auth-${COMPOSE_PROFILES}
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-igamt.env
       - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
-      - hl7-igamt-db:hl7-igamt-db
-      - hl7-auth:hl7-auth
+      - hl7-igamt-db-${COMPOSE_PROFILES}:hl7-igamt-db-${COMPOSE_PROFILES}
+      - hl7-auth-${COMPOSE_PROFILES}:hl7-auth-${COMPOSE_PROFILES}
     volumes:
       - ./${COMPOSE_PROFILES}/data/hl7-igamt/logs/:/var/log/hl7-igamt/
-      - ./${COMPOSE_PROFILES}/env/keys:/usr/local/hl7-igamt/keys
+      - ./${COMPOSE_PROFILES}/keys:/usr/local/hl7-igamt/keys
     extra_hosts:
       - "hit-dev.nist.gov:129.6.24.81"
 
@@ -107,11 +107,11 @@ services:
     ports:
       - "${HL7_REVERSE_PROXY_PORT-1002}:8102"
     depends_on:
-      - hl7-auth
-      - hl7-igamt
+      - hl7-auth-${COMPOSE_PROFILES}
+      - hl7-igamt-${COMPOSE_PROFILES}
     links:
-      - hl7-auth:hl7-auth
-      - hl7-igamt:hl7-igamt
+      - hl7-auth-${COMPOSE_PROFILES}:hl7-auth-${COMPOSE_PROFILES}
+      - hl7-igamt-${COMPOSE_PROFILES}:hl7-igamt-${COMPOSE_PROFILES}
 networks:
   hl7-dev:
     name: hl7-dev
