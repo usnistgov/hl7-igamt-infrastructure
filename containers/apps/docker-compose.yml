@@ -23,7 +23,7 @@ services:
     restart: always
 
   hl7-auth:
-    image: nist775hit/hl7-auth-2
+    image: nist775hit/hl7-auth-2-${COMPOSE_PROFILES}
     networks:
       - hl7-${COMPOSE_PROFILES}
     container_name: hl7-auth-${COMPOSE_PROFILES}
@@ -33,13 +33,13 @@ services:
     ports:
       - "${HL7_AUTH_PORT:-1000}:8090"
     depends_on:
-      - hl7-auth-db-${COMPOSE_PROFILES}
+      - hl7-auth-db
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-auth-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-auth.env
       - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
-      - hl7-auth-db-${COMPOSE_PROFILES}:hl7-auth-db-${COMPOSE_PROFILES}
+      - hl7-auth-db:hl7-auth-db
     volumes:
       - ./${COMPOSE_PROFILES}/data/hl7-auth/logs/:/var/log/hl7-auth/
       - ./${COMPOSE_PROFILES}/keys:/usr/local/hl7-auth/keys
@@ -67,7 +67,7 @@ services:
     restart: always
 
   hl7-igamt:
-    image: nist775hit/hl7-igamt-2
+    image: nist775hit/hl7-igamt-2-${COMPOSE_PROFILES}
     networks:
       - hl7-${COMPOSE_PROFILES}
     container_name: hl7-igamt-${COMPOSE_PROFILES}
@@ -75,17 +75,17 @@ services:
     expose:
       - "9000"
     ports:
-      - "${HL7_IGAMT_PORT-1001}:9000"
+      - "${HL7_IGAMT_PORT:-1001}:9000"
     depends_on:
-      - hl7-igamt-db-${COMPOSE_PROFILES}
-      - hl7-auth-${COMPOSE_PROFILES}
+      - hl7-igamt-db
+      - hl7-auth
     env_file:
       - ./${COMPOSE_PROFILES}/env/hl7-igamt-db.env
       - ./${COMPOSE_PROFILES}/env/hl7-igamt.env
       - ./${COMPOSE_PROFILES}/env/deployment.env
     links:
-      - hl7-igamt-db-${COMPOSE_PROFILES}:hl7-igamt-db-${COMPOSE_PROFILES}
-      - hl7-auth-${COMPOSE_PROFILES}:hl7-auth-${COMPOSE_PROFILES}
+      - hl7-igamt-db:hl7-igamt-db
+      - hl7-auth:hl7-auth
     volumes:
       - ./${COMPOSE_PROFILES}/data/hl7-igamt/logs/:/var/log/hl7-igamt/
       - ./${COMPOSE_PROFILES}/keys:/usr/local/hl7-igamt/keys
@@ -105,13 +105,13 @@ services:
       - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/logs/:/var/log/nginx/
       - ./${COMPOSE_PROFILES}/data/hl7-reverse-proxy/html:/usr/share/nginx/html:ro
     ports:
-      - "${HL7_REVERSE_PROXY_PORT-1002}:8102"
+      - "${HL7_REVERSE_PROXY_PORT:-1002}:8102"
     depends_on:
-      - hl7-auth-${COMPOSE_PROFILES}
-      - hl7-igamt-${COMPOSE_PROFILES}
+      - hl7-auth
+      - hl7-igamt
     links:
-      - hl7-auth-${COMPOSE_PROFILES}:hl7-auth-${COMPOSE_PROFILES}
-      - hl7-igamt-${COMPOSE_PROFILES}:hl7-igamt-${COMPOSE_PROFILES}
+      - hl7-auth:hl7-auth
+      - hl7-igamt:hl7-igamt
 networks:
   hl7-dev:
     name: hl7-dev
