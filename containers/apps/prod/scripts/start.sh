@@ -1,1 +1,1 @@
-COMPOSE_PROFILES=prod docker compose -f ../../docker-compose.yml --env-file ../env/deployment.env up -d
+COMPOSE_PROFILES=prod docker compose -f ../../docker-compose.yml --env-file ../env/deployment.env up -d --pull always
